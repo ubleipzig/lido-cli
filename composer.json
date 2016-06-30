@@ -1,0 +1,31 @@
+{
+  "name": "ubleipzig/lido-cli",
+  "description": "Command line tool to manage LIDO sources.",
+  "keywords": [
+    "php",
+    "cli",
+    "lido",
+    "xml"
+  ],
+  "license": "GPL-3.0+",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Frank Morgner",
+      "email": "morgnerf@ub.uni-leipzig.de",
+      "homepage": "https://ub.uni-leipzig.de",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.9",
+    "prewk/xml-string-streamer":"master-dev",
+    "ulrichsg/getopt-php":"master-dev",
+    "vlucas/phpdotenv":"2.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "LidoCli\\": "src/"
+    }
+  }
+}
