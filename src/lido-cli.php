@@ -29,7 +29,8 @@ class LidoClient
         $getopt = new Getopt([
             ['h','help', GetOpt::NO_ARGUMENT, 'Help manual'],
             [null,'license', GetOpt::NO_ARGUMENT, 'License GNU GPL V3 text'],
-            ['s','source', GetOpt::REQUIRED_ARGUMENT, 'Path to source file']
+            ['i','import', GetOpt::REQUIRED_ARGUMENT, 'Path to import file'],
+            ['s','source', GetOpt::OPTIONAL_ARGUMENT, 'Source indicator to load specific LidoRecord manager']
         ]);
 
         try {
@@ -46,12 +47,11 @@ class LidoClient
             }
 
             // Process options
-            if ($source = $getopt->getOption('s')) {
+            if ($path = $getopt->getOption('i')) {
                 // start processing here
                 $obj = new Lido();
-                $obj->process($source);
+                $obj->process($path, $getopt->getOption('s'));
             }
-
 
         } catch (\UnexpectedValueException $e) {
             echo "Error: " . $e->getMessage() . "\n";

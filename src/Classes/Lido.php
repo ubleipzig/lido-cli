@@ -67,38 +67,42 @@ class Lido
     /**
      * Controller process of lido-cli command line tool.
      *
-     * @param string $source    Path to import source
+     * @param string $path      Path to import source
+     * @param string $source    Source identifier
      *
      * @access public
      */
-    public function process($source)
+    public function process($path, $source = null)
     {
 
         try {
-            if (false === $this->checkIfLidoFileExists($source)) {
+            if (false === $this->checkIfLidoFileExists($path)) {
                 throw new \Exception('File to import does not exist');
             }
 
-            if (false === $this->setLidoWrapTagOpen($source)) {
+            if (false === $this->setLidoWrapTagOpen($path)) {
                 throw new \Exception('LIDO XML isn\'t valid. Root element .
                     lidoWrap hasn\'t found.');
             }
 
-            $streamer = XmlStringStreamer::createStringWalkerParser($source);
+            echo "Start streaming file: ".$path."\n";
 
-            $i = 1;
+            $streamer = XmlStringStreamer::createStringWalkerParser($path);
+
+            //$i = 1;
             while ($node = $streamer->getNode()) {
                 $this->setLidoWrapTags($node);
 
                 $data = $this->transformLidoWithXslt($node);
 
-                $record = new LidoRecord($data, '', 'lido', 'lido');
+                $record = LidoFactory::getLidoInstance($data, $source);
+                //$record = new LidoRecord($data, '', 'lido', 'lido');
                 $string = $record->toSolrArray();
                 //print_r($string);
                 //file_put_contents('../sources/lido-unit-'.$i.'.xml', $node);
-                $i++;
+                //$i++;
             }
-            echo 'Done';
+            echo "Done\n";
 
         } catch (\Exception $e) {
             echo "Error: " . $e->getMessage() . "\n";
