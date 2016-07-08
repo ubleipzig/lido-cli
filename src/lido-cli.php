@@ -6,7 +6,6 @@
  *
  * @author Frank Morgner <morgnerf@ub.uni-leipzig.de>
  *
- *
  * This program comes with ABSOLUTELY NO WARRANTY; for details type
  * `lido-cli.php --help'.
  * This is free software, and you are welcome to redistribute it
@@ -29,8 +28,10 @@ class LidoClient
         $getopt = new Getopt([
             ['h','help', GetOpt::NO_ARGUMENT, 'Help manual'],
             [null,'license', GetOpt::NO_ARGUMENT, 'License GNU GPL V3 text'],
+            ['e', 'export', GetOpt::OPTIONAL_ARGUMENT, 'Path where to export files'],
             ['i','import', GetOpt::REQUIRED_ARGUMENT, 'Path to import file'],
-            ['s','source', GetOpt::OPTIONAL_ARGUMENT, 'Source indicator to load specific LidoRecord manager']
+            ['s', 'source', GetOpt::OPTIONAL_ARGUMENT, 'Source indicator to load specific LidoRecord manager'],
+            ['u', 'units', GetOpt::OPTIONAL_ARGUMENT, 'Units to pool processed entries for output']
         ]);
 
         try {
@@ -50,7 +51,12 @@ class LidoClient
             if ($path = $getopt->getOption('i')) {
                 // start processing here
                 $obj = new Lido();
-                $obj->process($path, $getopt->getOption('s'));
+                $obj->process(
+                    $path,
+                    $getopt->getOption('e'),
+                    $getopt->getOption('s'),
+                    $getopt->getOption('u')
+                );
             }
 
         } catch (\UnexpectedValueException $e) {

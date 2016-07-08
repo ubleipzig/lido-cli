@@ -55,7 +55,7 @@ class LidoFactory
      * @return object
      * @access public
      */
-     public static function getLidoInstance($data, $cofix = null)
+    public static function getLidoInstance($data, $cofix = null, $add = [])
      {
         if (isset($cofix) && (strlen($cofix)) > 0) {
             $class =

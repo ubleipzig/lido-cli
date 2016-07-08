@@ -30,4 +30,13 @@ interface LidoRecordInterface
      * @access public
      */
     public function toSolrArray();
+
+    /**
+     * Collector for json to import in Solr
+     *
+     * @return string    Returns json to import in Solr
+     * @access public
+     */
+    public function toSolrJson();
+
 }

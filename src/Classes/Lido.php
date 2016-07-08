@@ -26,6 +26,14 @@ use Prewk\XmlStringStreamer;
 class Lido
 {
     /**
+     * Benchtime start marker
+     *
+     * @var int $benchTime
+     * @access private
+     */
+    private $benchmarkTime;
+
+    /**
      * Lido prefix within LIDO tags
      *
      * @var string $lidoPrefix
@@ -40,6 +48,27 @@ class Lido
      * @access private
      */
     private $lidoWrapTagOpen;
+
+    /**
+     * Constructor
+     *
+     * @access public
+     */
+    public function __construct()
+    {
+        $this->benchmarkTime = microtime(true);
+    }
+
+    /**
+     * Get benchmark difference in seconds
+     *
+     * @return float    Benchmark difference in seconds.
+     * @access private
+     */
+    private function getBenchmark()
+    {
+        return number_format((microtime(true) - $this->benchmarkTime), 4);
+    }
 
     /**
      * Return open tag of lidoWrap with namespaces and prefix.
@@ -68,46 +97,111 @@ class Lido
      * Controller process of lido-cli command line tool.
      *
      * @param string $path      Path to import source
+     * @param string $export Path where to export files
      * @param string $source    Source identifier
+     * @param int $units Units to poll of processed Lido XML. Default 1000.
      *
      * @access public
      */
-    public function process($path, $source = null)
+    public function process($path, $export = null, $source = null, $units = 1000)
     {
 
         try {
+            $exportPath = '';
+
+            if ($export != null &&
+                (false ===
+                    ($exportPath = $this->checkIfExportDirectoryExists($export)))
+            ) {
+                throw new \Exception("Parameter -e|--export contains no valid" .
+                    "export directory.");
+            }
             if (false === $this->checkIfLidoFileExists($path)) {
                 throw new \Exception('File to import does not exist');
             }
-
+            if (false === $this->checkIfUnitsIsInteger($units)) {
+                throw new \Exception('Parameter -u|--unit have to be integer.');
+            }
             if (false === $this->setLidoWrapTagOpen($path)) {
                 throw new \Exception('LIDO XML isn\'t valid. Root element .
                     lidoWrap hasn\'t found.');
             }
 
-            echo "Start streaming file: ".$path."\n";
+            print_r("Start streaming file: " . $path . "\n");
 
             $streamer = XmlStringStreamer::createStringWalkerParser($path);
 
-            //$i = 1;
+            // Define local vars
+            $outputCollector = '';
+            $tempIterator = 1;
+            $fileIterator = 1;
+
+            // Start streaming via node
             while ($node = $streamer->getNode()) {
+                // Restore LIDO XML
                 $this->setLidoWrapTags($node);
 
+                // Process XSLT transformations
+                //print_r("Start XSLT processing.");
                 $data = $this->transformLidoWithXslt($node);
+                //print_r("Finish XSLT processing in ".$this->getBenchmark()."s");
 
+                // Process Lido XML
+                //print_r("Start processing LIDO xml.");
                 $record = LidoFactory::getLidoInstance($data, $source);
-                //$record = new LidoRecord($data, '', 'lido', 'lido');
-                $string = $record->toSolrArray();
-                //print_r($string);
-                //file_put_contents('../sources/lido-unit-'.$i.'.xml', $node);
-                //$i++;
+                //print_r("End processing LIDO xml.");
+
+                if ($export == null) {
+                    $outputCollector = $record->toSolrArray();
+                } else {
+                    $outputCollector .= $record->toSolrJson();
+                }
+
+                if ($exportPath != null) {
+                    if ($tempIterator == $units) {
+                        file_put_contents(
+                            $exportPath . basename($path) . '-' . $fileIterator . '.ldj',
+                            $outputCollector
+                        );
+                        $fileIterator++;
+                        $tempIterator = 0;
+                        $outputCollector = '';
+                    }
+                } else {
+                    print_r($outputCollector);
+                }
+                $tempIterator++;
+            } // End while
+
+            // Export rest of files
+            if ($exportPath != null) {
+                file_put_contents(
+                    $exportPath . basename($path) . '-' . $fileIterator . '.ldj',
+                    $outputCollector
+                );
             }
-            echo "Done\n";
+
+            print_r("All done in " . $this->getBenchmark() . "s\n");
 
         } catch (\Exception $e) {
             echo "Error: " . $e->getMessage() . "\n";
             exit(1);
         }
+    }
+
+    /**
+     * Check if export directory is valid
+     *
+     * @param $export
+     *
+     * @return mixed    Return absolute path if it exists otherwise false.
+     * @access private
+     */
+    private function checkIfExportDirectoryExists($export)
+    {
+        $path = realpath($export);
+        return ($path !== false && is_dir($path))
+            ? (rtrim($path, '/') . '/') : false;
     }
 
     /**
@@ -124,23 +218,57 @@ class Lido
     }
 
     /**
+     * Check if parameter units is an integer
+     *
+     * @param $units
+     *
+     * @return bool
+     * @access private
+     */
+    private function checkIfUnitsIsInteger($units)
+    {
+        return (filter_var($units, FILTER_VALIDATE_INT) !== false) ? false : true;
+    }
+
+    /**
      * Manage XSLT processor to process single unit below LIDO xml root <lidoWrap>
      *
-     * @param string $node  Single unit of LIDO xml
+     * @param string $node Single unit of LIDO xml
+     * @param string $source Source identifier for LIDO xml
      *
      * @return string       XSLT processed single unit.
      * @access private
+     * @throws \Exception    Cannot process XSLT stylesheet.
      */
-    private function transformLidoWithXslt($node)
+    private function transformLidoWithXslt($node, $source = null)
     {
         $xml = simplexml_load_string($node);
 
-        $template = simplexml_load_file('./setting/lido-transform.xsl');
+        $lidoXslt = "./xslt/lido-*.xsl";
+        $sourceXslt = "./xslt/" . $source . "-*.xsl";
 
-        $xslt = new \XSLTProcessor;
-        $xslt->importStyleSheet($template); // import XSLT document
+        $xsltStyleSheetsToProcess = array_merge(
+            glob($lidoXslt),
+            glob($sourceXslt)
+        );
 
-        return $xslt->transformToXML($xml);
+        if (is_array($xsltStyleSheetsToProcess) &&
+            count($xsltStyleSheetsToProcess) > 0
+        ) {
+            try {
+                $xslt = new \XSLTProcessor;
+                foreach ($xsltStyleSheetsToProcess as $xsltStyleSheets) {
+                    //print_r("Processing XSLT stlyesheet: " . $xsltStyleSheets);
+                    $template = simplexml_load_file($xsltStyleSheets);
+                    $xslt->importStyleSheet($template); // import XSLT document
+                    $xml = $xslt->transformToXML($xml);
+                }
+            } catch (\Exception $e) {
+                throw new \Exception("Cannot process XSLT stylesheet: " .
+                    $xsltStyleSheets);
+            }
+        }
+        return $xml;
     }
 
     /**
