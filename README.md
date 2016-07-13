@@ -12,6 +12,8 @@ composer install
 
 To load all dependencies.
 
+Make sure you have [mbstring](http://php.net/manual/en/mbstring.installation.php) extension enabled.
+
 ## Usage
 
 ### License
