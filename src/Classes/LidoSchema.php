@@ -1,6 +1,6 @@
 <?php
 /**
- * Lido - Manager class for LIDO Records
+ * Lido - Lido Schema class load basic NatLibFi classes for LIDO Records
  *
  * Copyright (C) 2016 Leipzig University Library
  *
@@ -21,15 +21,39 @@
  */
 namespace LidoCli\Classes;
 
-interface LidoRecordInterface
+class LidoSchema implements LidoSchemaInterface
 {
+    /**
+     * Lido Record object
+     *
+     * @var object $lidoRecord Lido Record object
+     * @access private
+     *
+     */
+    private $lidoRecord;
+
+    /**
+     * LidoSchema constructor
+     *
+     * @param $lidoRecord Lido record object
+     *
+     * @access public
+     */
+    public function __construct($lidoRecord)
+    {
+        $this->lidoRecord = $lidoRecord;
+    }
+
     /**
      * Collector for array to import in Solr
      *
      * @return array    Returns array to import in Solr
      * @access public
      */
-    public function toSolrArray();
+    public function toSolrArray()
+    {
+        return $this->lidoRecord->toSolrArray();
+    }
 
     /**
      * Collector for json to import in Solr
@@ -37,6 +61,8 @@ interface LidoRecordInterface
      * @return string    Returns json to import in Solr
      * @access public
      */
-    public function toSolrJson();
-
+    public function toSolrJson()
+    {
+        return json_encode($this->toSolrArray(), JSON_UNESCAPED_UNICODE) . "\n";
+    }
 }

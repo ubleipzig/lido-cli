@@ -21,8 +21,6 @@
  */
 namespace LidoCli\Classes;
 
-use \LidoCli\Ndl\LidoRecord;
-
 class LidoFactory
 {
     /**
@@ -48,28 +46,40 @@ class LidoFactory
     /**
      * Load default or specific LIDO record class
      *
-     * @param string $data  XML LIDO data stream
-     * @param string $cofix Collection prefix
+     * @param string $data XML LIDO data stream
+     * @param string $filter Filter prefix
+     * @param string $schema Schema prefix
      *
      * @static
      * @return object
      * @access public
      */
-    public static function getLidoInstance($data, $cofix = null, $add = [])
-     {
-        if (isset($cofix) && (strlen($cofix)) > 0) {
-            $class =
-                'LidoCli\Classes'.'\\'.ucfirst(strtolower($cofix)) . 'LidoRecord';
+    public static function getLidoInstance($data, $filter = null, $schema = null)
+    {
+        $classFilter = (isset($filter) && (strlen($filter)) > 0)
+            ? 'LidoCli\Classes' . '\\' . ucfirst(strtolower($filter)) . 'LidoRecord'
+            : 'LidoCli\Classes' . '\\' . 'LidoRecord';
 
-            if (class_exists($class)) {
-                 $obj = new $class($data, '', $cofix, $cofix);
+        if (class_exists($classFilter)) {
+            $objFilter = new $classFilter($data, '', 'lido', 'lido');
+        } else {
+            throw new \UnexpectedValueException('No Lido filter class: ' . $classFilter .
+                ' exists. Check given parameter -f |--filter');
+        }
+
+        if (isset($schema) && (strlen($schema)) > 0) {
+            $classSchema =
+                'LidoCli\Classes' . '\\LidoSchema' . ucfirst(strtolower($schema));
+
+            if (class_exists($classSchema)) {
+                $obj = new $classSchema($objFilter);
                  return $obj;
             }
-            throw new \UnexpectedValueException('No LidoRecord class: '.$class.
-                ' exists. Check given parameter -s |--source');
+            throw new \UnexpectedValueException('No Lido schema class: ' .
+                $classSchema . ' exists. Check given parameter -s |--schema');
         } else {
-            return new LidoRecord($data, '', 'lido', 'lido');
+            return new LidoSchema($objFilter);
         }
-     }
+    }
 
 }

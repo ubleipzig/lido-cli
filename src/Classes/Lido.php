@@ -98,12 +98,19 @@ class Lido
      *
      * @param string $path      Path to import source
      * @param string $export Path where to export files
-     * @param string $source    Source identifier
+     * @param string $filter Filter to normalize data
+     * @param string $schema Schema to which export files
      * @param int $units Units to poll of processed Lido XML. Default 1000.
      *
      * @access public
      */
-    public function process($path, $export = null, $source = null, $units = 1000)
+    public function process(
+        $path,
+        $export = null,
+        $filter = null,
+        $schema = null,
+        $units = 1000
+    )
     {
 
         try {
@@ -148,7 +155,7 @@ class Lido
 
                 // Process Lido XML
                 //print_r("Start processing LIDO xml.");
-                $record = LidoFactory::getLidoInstance($data, $source);
+                $record = LidoFactory::getLidoInstance($data, $filter, $schema);
                 //print_r("End processing LIDO xml.");
 
                 if ($export == null) {
@@ -234,22 +241,23 @@ class Lido
      * Manage XSLT processor to process single unit below LIDO xml root <lidoWrap>
      *
      * @param string $node Single unit of LIDO xml
-     * @param string $source Source identifier for LIDO xml
+     * @param string $filter Filter identifier for LIDO xml. Currently not
+     *                          implemented.
      *
      * @return string       XSLT processed single unit.
      * @access private
      * @throws \Exception    Cannot process XSLT stylesheet.
      */
-    private function transformLidoWithXslt($node, $source = null)
+    private function transformLidoWithXslt($node, $filter = null)
     {
         $xml = simplexml_load_string($node);
 
-        $lidoXslt = "./xslt/lido-*.xsl";
-        $sourceXslt = "./xslt/" . $source . "-*.xsl";
+        $lidoXslt = "../xslt/lido-*.xsl";
+        $filterXslt = "../xslt/" . $filter . "-*.xsl";
 
         $xsltStyleSheetsToProcess = array_merge(
             glob($lidoXslt),
-            glob($sourceXslt)
+            glob($filterXslt)
         );
 
         if (is_array($xsltStyleSheetsToProcess) &&
@@ -267,6 +275,8 @@ class Lido
                 throw new \Exception("Cannot process XSLT stylesheet: " .
                     $xsltStyleSheets);
             }
+        } else {
+            return $node;
         }
         return $xml;
     }
