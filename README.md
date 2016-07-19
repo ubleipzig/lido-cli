@@ -30,6 +30,16 @@ To run the lido-cli programme please note that the (-i|--import) parameter is re
 php ./lido-cli.php -i /path/to/lido-xml
 </pre>
 
+Lido Cli follows the concept to be scalable in two directions to keep usability to manage different Lido sources.
+1) Run the output to a given Solr scheme with parameter (-s|schema)
+2) To process or normalize possible various LIDO xml interpretation (-r|record)
+
+<pre>
+php ./lido-cli.php -i /path/to/lido-xml -r daphne -s vufind
+</pre>
+
+The example will process Daphne LIDO data of Staatliche Kunstsammlungen Dresden toward the VuFind Solr schema. If no parameter indicated the programme outputs native data of the NatLibFi LidoRecord class.
+
 ### Output
 
 Output depends on given parameter (-e|--export) for an data directory where to store output in as line delimited json (*.ldj).
@@ -38,8 +48,3 @@ If no export parameter given lido-cli outputs Solr arrays on the screen for exam
 
 ## License
 [General Public License 3](http://www.gnu.org/licenses/gpl.html) or later; See also the LICENSE.txt file.
-
-
-
-
-

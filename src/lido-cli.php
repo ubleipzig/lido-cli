@@ -29,8 +29,8 @@ class LidoClient
             ['h','help', GetOpt::NO_ARGUMENT, 'Help manual'],
             [null,'license', GetOpt::NO_ARGUMENT, 'License GNU GPL V3 text'],
             ['e', 'export', GetOpt::OPTIONAL_ARGUMENT, 'Path where to export files'],
-            ['f', 'filter', GetOpt::OPTIONAL_ARGUMENT, 'Filter schema to normalize LIDO xml'],
             ['i', 'import', GetOpt::REQUIRED_ARGUMENT, 'Path to import file'],
+            ['r', 'record', GetOpt::OPTIONAL_ARGUMENT, 'Record or source to normalize against LIDO record scheme'],
             ['s', 'schema', GetOpt::OPTIONAL_ARGUMENT, 'Output type of Solr schema'],
             ['u', 'units', GetOpt::OPTIONAL_ARGUMENT, 'Units to pool processed entries for output']
         ]);
@@ -55,7 +55,7 @@ class LidoClient
                 $obj->process(
                     $path,
                     $getopt->getOption('e'),
-                    $getopt->getOption('f'),
+                    $getopt->getOption('r'),
                     $getopt->getOption('s'),
                     $getopt->getOption('u')
                 );
