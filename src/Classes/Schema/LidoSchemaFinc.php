@@ -23,6 +23,8 @@ namespace LidoCli\Classes\Schema;
 
 class LidoSchemaFinc implements LidoSchemaInterface
 {
+    use LidoSchemaTrait;
+
     /**
      * Lido Record object
      *
@@ -76,7 +78,7 @@ class LidoSchemaFinc implements LidoSchemaInterface
         $record['recordtype'] = $this->lidoRecord->getRecordType();
         // Urls
         $record['url'][] = $this->lidoRecord->getRecordInfoLink();
-        return $record;
+        return $this->elaborateRecord($record);
     }
 
     /**
