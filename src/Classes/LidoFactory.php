@@ -56,20 +56,21 @@ class LidoFactory
      */
     public static function getLidoInstance($data, $filter = null, $schema = null)
     {
+        $nsRecordClass = "LidoCli\\Classes\\Record\\";
         $classFilter = (isset($filter) && (strlen($filter)) > 0)
-            ? 'LidoCli\Classes' . '\\' . ucfirst(strtolower($filter)) . 'LidoRecord'
-            : 'LidoCli\Classes' . '\\' . 'LidoRecord';
+            ? $nsRecordClass . ucfirst(strtolower($filter)) . 'LidoRecord'
+            : $nsRecordClass . 'LidoRecord';
 
         if (class_exists($classFilter)) {
             $objFilter = new $classFilter($data, '', 'lido', 'lido');
         } else {
-            throw new \UnexpectedValueException('No Lido filter class: ' . $classFilter .
-                ' exists. Check given parameter -f |--filter');
+            throw new \UnexpectedValueException('No Lido filter class: '
+                . $classFilter . ' exists. Check given parameter -f |--filter');
         }
 
         if (isset($schema) && (strlen($schema)) > 0) {
             $classSchema =
-                'LidoCli\Classes' . '\\LidoSchema' . ucfirst(strtolower($schema));
+                'LidoCli\Classes\Schema\\LidoSchema' . ucfirst(strtolower($schema));
 
             if (class_exists($classSchema)) {
                 $obj = new $classSchema($objFilter);
@@ -78,8 +79,7 @@ class LidoFactory
             throw new \UnexpectedValueException('No Lido schema class: ' .
                 $classSchema . ' exists. Check given parameter -s |--schema');
         } else {
-            return new LidoSchema($objFilter);
+            return new \LidoCli\Classes\Schema\LidoSchema($objFilter);
         }
     }
-
 }

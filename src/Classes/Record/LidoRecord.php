@@ -20,7 +20,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace LidoCli\Classes;
+namespace LidoCli\Classes\Record;
 
 use \LidoCli\Ndl\LidoRecord as NativeLidoRecord;
 use \LidoCli\Ndl\MetadataUtils;

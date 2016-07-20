@@ -19,46 +19,24 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace LidoCli\Classes;
+namespace LidoCli\Classes\Schema;
 
-class DaphneLidoRecord extends LidoRecord
+interface LidoSchemaInterface
 {
     /**
-     * Get the default language used when building the Solr array
+     * Collector for array to import in Solr
      *
-     * @return string
+     * @return array    Returns array to import in Solr
      * @access public
      */
-    public function getDefaultLanguage()
-    {
-        return 'de';
-    }
+    public function toSolrArray();
 
     /**
-     * Get institutions
+     * Collector for json to import in Solr
      *
-     * @return array
+     * @return string    Returns json to import in Solr
      * @access public
      */
-    public function getInstitution()
-    {
-        $listInstitutions = $this->getLegalBodyId();
-        foreach ($listInstitutions as &$institution) {
-            if (0 < preg_match('/^info:isil\/(.*)$/', $institution, $match)) {
-                $institution = $match[1];
-            }
-        }
-        return $listInstitutions;
-    }
+    public function toSolrJson();
 
-    /**
-     * Get source identifier
-     *
-     * @return string
-     * @access public
-     */
-    public function getSourceId()
-    {
-        return '102';
-    }
 }
