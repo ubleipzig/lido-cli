@@ -52,7 +52,6 @@ class LidoSchemaVufind implements LidoSchemaInterface
      */
     public function toSolrArray()
     {
-        $record = $this->lidoRecord->toSolrArray();
         // Date Range
         $record = $this->lidoRecord->toSolrArray();
         $dateRange = $this->lidoRecord->getDateRange();

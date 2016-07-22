@@ -21,9 +21,20 @@
  */
 namespace LidoCli\Classes\Schema;
 
+use \LidoCli\Classes\Storage as Storage;
+
 class LidoSchemaFinc implements LidoSchemaInterface
 {
     use LidoSchemaTrait;
+
+    /**
+     * Config object
+     *
+     * @var object $config Config object
+     * @access private
+     *
+     */
+    private $config;
 
     /**
      * Lido Record object
@@ -37,6 +48,8 @@ class LidoSchemaFinc implements LidoSchemaInterface
     /**
      * LidoSchema constructor
      *
+     * Please note: GetRecordIdentifier method depends on initialized lidoRecord.
+     *
      * @param $lidoRecord Lido record object
      *
      * @access public
@@ -44,6 +57,12 @@ class LidoSchemaFinc implements LidoSchemaInterface
     public function __construct($lidoRecord)
     {
         $this->lidoRecord = $lidoRecord;
+        $this->config = Storage\RegistryConfig::getInstance()
+            ->loadSchema(
+                $this->getSchemaIdentifier(),
+                $this->getRecordIdentifier()
+            )
+            ->getArray();
     }
 
     /**
@@ -55,6 +74,7 @@ class LidoSchemaFinc implements LidoSchemaInterface
     public function toSolrArray()
     {
         $record = $this->lidoRecord->toSolrArray();
+        $this->getRecordId($record);
         $dateRange = $this->lidoRecord->getDateRange();
         if ($dateRange) {
             $record['publishDateSort']
@@ -67,13 +87,19 @@ class LidoSchemaFinc implements LidoSchemaInterface
         $record['author'] = $this->lidoRecord->getAuthors();
         $record['author_role'] = $this->lidoRecord->getAuthorRoles();
         $record['author_id'] = $this->lidoRecord->getAuthorIds();
+        // Author VF1
+        $record['vf1_author'] = $this->lidoRecord->getAuthorPrimary();
+        $record['vf1_author2'] = $this->lidoRecord->getAuthorSecondary();
+        $record['vf1_author2-role'] = $this->lidoRecord->getAuthorRoles();
         // Collection
         $record['collection']
             = $this->lidoRecord->getRelatedWorkDisplayObject(['relatedWork']);
+        // Geographic
+        $record['geographic']
+            = $record['geographic_facet']
+            = $this->lidoRecord->getRepositoryNamePlaceSet();
         // Institution
         $record['institution'] = $this->lidoRecord->getInstitution();
-        // Source identifier
-        $record['source_id'] = $this->lidoRecord->getSourceId();
         // Recordtype
         $record['recordtype'] = $this->lidoRecord->getRecordType();
         // Urls
@@ -90,5 +116,41 @@ class LidoSchemaFinc implements LidoSchemaInterface
     public function toSolrJson()
     {
         return json_encode($this->toSolrArray(), JSON_UNESCAPED_UNICODE) . "\n";
+    }
+
+    /**
+     * Get generated record id
+     *
+     * @params array $record Self-referential record id.
+     *
+     * @return array $record
+     * @access protected
+     * @throws \Exception Conventional principle declare source id at schema config.
+     */
+    protected function getRecordId(&$record)
+    {
+        if (!isset($this->config['static']['source_id'])) {
+            throw new \Exception(
+                'Conventional principle: Source id has to be given at '
+                . '$config[static][source_id] at schema configuration to generate '
+                . 'record id.' . "\n"
+            );
+        }
+        if ('' == ($record_id = $this->lidoRecord->getLidoRecID())) {
+            throw new \Exception(
+                'Conventional principle: To generate an unique record id for finc '
+                . 'Solr schema record needs an id. Failure: Missing given value at '
+                . 'Lido xml.' . "\n"
+            );
+        }
+        $record['id'] =
+            sprintf(
+                '%s-%d-%s',
+                $this->lidoRecord->getRecordType(),
+                $this->config['static']['source_id'],
+                $record_id
+            );
+
+        return $record;
     }
 }

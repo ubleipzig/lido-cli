@@ -239,29 +239,20 @@ class LidoRecord extends NativeLidoRecord
     }
 
     /**
-     * Return the legal body ID.
+     * Return LIDO record identifier.
      *
      * @link   http://www.lido-schema.org/schema/v1.0/lido-v1.0-schema-listing.html
      * #legalBodyRefComplexType
      * @return string
-     * @access protected
+     * @access public
      */
-    protected function getLegalBodyId()
+    public function getLidoRecID()
     {
-        $empty = empty($this->doc->lido->descriptiveMetadata
-            ->objectIdentificationWrap->repositoryWrap->repositorySet);
+        $empty = empty($this->doc->lido->lidoRecID);
         if ($empty) {
-            return [];
+            return '';
         }
-        $listBodyID = [];
-        foreach ($this->doc->lido->descriptiveMetadata->objectIdentificationWrap
-                     ->repositoryWrap->repositorySet as $set
-        ) {
-            if (!empty($set->repositoryName->legalBodyID)) {
-                $listBodyID[] = (string)$set->repositoryName->legalBodyID;
-            }
-        }
-        return $listBodyID;
+        return (string)$this->doc->lido->lidoRecID;
     }
 
     /**
@@ -275,6 +266,25 @@ class LidoRecord extends NativeLidoRecord
     public function getPublishDateSort($dateString)
     {
         return MetadataUtils::extractYear($dateString);
+    }
+
+    /**
+     * Return record identifier.
+     *
+     * @link   http://www.lido-schema.org/schema/v1.0/lido-v1.0-schema-listing.html
+     * #legalBodyRefComplexType
+     * @return string
+     * @access public
+     */
+    public function getRecordID()
+    {
+        $empty = empty($this->doc->lido->administrativeMetadata->recordWrap
+            ->recordID);
+        if ($empty) {
+            return '';
+        }
+        return (string)$this->doc->lido->administrativeMetadata->recordWrap
+            ->recordID;
     }
 
     /**
@@ -321,14 +331,78 @@ class LidoRecord extends NativeLidoRecord
     }
 
     /**
-     * Get source identifier
+     * Return the legal body ID.
      *
+     * @link   http://www.lido-schema.org/schema/v1.0/lido-v1.0-schema-listing.html
+     * #legalBodyRefComplexType
+     * @return string
+     * @access protected
+     */
+    protected function getRepositoryNameID()
+    {
+        $institutionList = [];
+        foreach ($this->getRepositorySetNodes() as $set) {
+            $empty = empty($set->repositoryName->legalBodyID);
+            if (!$empty) {
+                $institutionList[] = (string)$set->repositoryName->legalBodyID;
+            }
+        }
+        return $institutionList;
+    }
+
+    /**
+     * Get repository sets
+     *
+     * @return simpleXMLElement[] Array of resourceSet nodes
+     */
+    protected function getRepositorySetNodes()
+    {
+        $empty = empty($this->doc->lido->descriptiveMetadata
+            ->objectIdentificationWrap->repositoryWrap->repositorySet);
+        if ($empty) {
+            return [];
+        }
+        $setList = [];
+        foreach ($this->doc->lido->descriptiveMetadata->objectIdentificationWrap
+                     ->repositoryWrap->repositorySet as $repositorySetNode) {
+            $setList[] = $repositorySetNode;
+        }
+        return $setList;
+    }
+
+    /**
+     * Return the legal body ID.
+     *
+     * @link   http://www.lido-schema.org/schema/v1.0/lido-v1.0-schema-listing.html
+     * #legalBodyRefComplexType
      * @return string
      * @access public
      */
-    public function getSourceId()
+    public function getRepositoryNamePlaceSet()
     {
-        return '';
+        $setList = [];
+        foreach ($this->getRepositorySetNodes() as $set) {
+            $empty = empty($set->repositoryLocation->namePlaceSet);
+            if (!$empty) {
+                foreach ($set->repositoryLocation->namePlaceSet as $namePlace) {
+                    $setList[] = (string)$namePlace->appellationValue;
+                }
+            }
+        }
+        return $setList;
+    }
+
+    /**
+     * Return the appelation/name of rights holder.
+     *
+     * @link   http://www.lido-schema.org/schema/v1.0/lido-v1.0-schema-listing.html
+     * #rightsComplexType
+     * @return string
+     * @access public
+     */
+    public function getRightsHolderAppellation()
+    {
+        return parent::getRights();
     }
 
     /**

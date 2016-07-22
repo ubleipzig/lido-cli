@@ -167,7 +167,7 @@ class Lido
                 if ($exportPath != null) {
                     if ($tempIterator == $units) {
                         file_put_contents(
-                            $exportPath . basename($path) . '-' . $fileIterator . '.ldj',
+                            $exportPath . basename($path) . '-' . $fileIterator . '.ndj',
                             $outputCollector
                         );
                         $fileIterator++;
@@ -183,7 +183,7 @@ class Lido
             // Export rest of files
             if ($exportPath != null) {
                 file_put_contents(
-                    $exportPath . basename($path) . '-' . $fileIterator . '.ldj',
+                    $exportPath . basename($path) . '-' . $fileIterator . '.ndj',
                     $outputCollector
                 );
             }

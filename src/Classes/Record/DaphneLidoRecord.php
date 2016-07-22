@@ -42,23 +42,12 @@ class DaphneLidoRecord extends LidoRecord
      */
     public function getInstitution()
     {
-        $listInstitutions = $this->getLegalBodyId();
+        $listInstitutions = $this->getRepositoryNameID();
         foreach ($listInstitutions as &$institution) {
             if (0 < preg_match('/^info:isil\/(.*)$/', $institution, $match)) {
                 $institution = $match[1];
             }
         }
         return $listInstitutions;
-    }
-
-    /**
-     * Get source identifier
-     *
-     * @return string
-     * @access public
-     */
-    public function getSourceId()
-    {
-        return '102';
     }
 }

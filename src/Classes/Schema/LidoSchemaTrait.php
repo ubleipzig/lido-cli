@@ -22,6 +22,8 @@
 
 namespace LidoCli\Classes\Schema;
 
+use \LidoCli\Classes\Storage as Storage;
+
 trait LidoSchemaTrait
 {
     /**
@@ -34,10 +36,11 @@ trait LidoSchemaTrait
      */
     protected function elaborateRecord($record)
     {
-        $config = $this->loadSchemaConfig();
-        foreach ($config as $task => $taskConfig) {
+        foreach ($this->config as $task => $taskConfig) {
             $method = 'runTask' . ucfirst($task);
-            if (isset($config[$task]) && true === method_exists($this, $method)) {
+            if (isset($this->config[$task])
+                && true === method_exists($this, $method)
+            ) {
                 $this->$method($record, $taskConfig);
             }
         }
@@ -79,30 +82,6 @@ trait LidoSchemaTrait
     }
 
     /**
-     * Load configuration array for process tasks
-     *
-     * @return mixed null|array Load schema task vars for a source.
-     * @access protected
-     */
-    protected function loadSchemaConfig()
-    {
-        $configPathToFile =
-            __DIR__ . "/../../../config/" . $this->getSchemaIdentifier()
-            . ".schema.php";
-        if (false === file_exists($configPathToFile)) {
-            return null;
-        }
-        $config = require $configPathToFile;
-        if (null == ($source = $this->getRecordIdentifier())) {
-            return null;
-        }
-        if (isset($config[$source])) {
-            return $config[$source];
-        }
-        return null;
-    }
-
-    /**
      * Run task - copy values in new field
      *
      * @param array $record Self-referential record array
@@ -125,7 +104,7 @@ trait LidoSchemaTrait
                             . ' already existed.'
                             . ' Existing record field will be overwritten.' . "\n");
                     }
-                    $record['cp_field'] = $record[$field];
+                    $record[$cp_field] = $record[$field];
                 }
             }
         }
@@ -155,7 +134,7 @@ trait LidoSchemaTrait
                             . ' already existed.'
                             . ' Existing record field will be overwritten.' . "\n");
                     }
-                    $record['mv_field'] = $record[$field];
+                    $record[$mv_field] = $record[$field];
                     unset($record[$field]);
                 }
             }

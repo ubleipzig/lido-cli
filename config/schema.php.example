@@ -29,7 +29,7 @@ return [
          *
          */
         'static' => [
-            'sourceId' => 102
+            'source_id' => 102
         ],
         /**
          * Suppress records field e.g delivered by the native NDL LidoRecord
@@ -55,7 +55,7 @@ return [
     ],
     'source' => [
         'static' => [
-            'sourceId' => 103
+            'source_id' => 103
         ]
     ],
 ];
