@@ -22,6 +22,7 @@
 namespace LidoCli\Classes\Schema;
 
 use \LidoCli\Classes\Storage as Storage;
+use \LidoCli\Classes\Utils as Utils;
 
 class LidoSchemaFinc implements LidoSchemaInterface
 {
@@ -104,6 +105,7 @@ class LidoSchemaFinc implements LidoSchemaInterface
         $record['recordtype'] = $this->lidoRecord->getRecordType();
         // Urls
         $record['url'][] = $this->lidoRecord->getRecordInfoLink();
+        $record['fullrecord'] = $this->lidoRecord->toXML();
         return $this->elaborateRecord($record);
     }
 
@@ -148,9 +150,10 @@ class LidoSchemaFinc implements LidoSchemaInterface
                 '%s-%d-%s',
                 $this->lidoRecord->getRecordType(),
                 $this->config['static']['source_id'],
-                $record_id
+                Utils\BaseEncode::base64Encode($record_id)
             );
 
         return $record;
     }
+
 }
