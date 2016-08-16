@@ -516,7 +516,7 @@ class LidoRecord extends NativeLidoRecord
             } elseif (strlen($date) == 4) {
                 $date = $date . '-12-31T23:59:59Z';
             } elseif (strlen($date) == 7) {
-                $d = new DateTime($date . '-01');
+                $d = new \DateTime($date . '-01');
                 $date = $d->format('Y-m-t') . 'T23:59:59Z';
             } elseif (strlen($date) == 10) {
                 $date = $date . 'T23:59:59Z';

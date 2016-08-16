@@ -130,8 +130,8 @@ class Lido
                 throw new \Exception('Parameter -u|--unit have to be integer.');
             }
             if (false === $this->setLidoWrapTagOpen($path)) {
-                throw new \Exception('LIDO XML isn\'t valid. Root element .
-                    lidoWrap hasn\'t found.');
+                throw new \Exception('LIDO XML isn\'t valid. Root element ' .
+                    'lidoWrap hasn\'t found.');
             }
 
             print_r("Start streaming file: " . $path . "\n");
