@@ -157,7 +157,8 @@ trait LidoSchemaTrait
             foreach ($config as $field => $val) {
                 if (isset($record[$field])) {
                     print_r('Notice: Overwrite existing record field: ' . $field
-                        . ' by schema configuration with value: ' . $val . "\n");
+                        . ' by schema configuration with value: '
+                        . json_encode($val) . "\n");
                 }
                 $record[$field] = $val;
             }

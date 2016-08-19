@@ -104,7 +104,7 @@ class LidoSchemaFinc implements LidoSchemaInterface
         // Recordtype
         $record['recordtype'] = $this->lidoRecord->getRecordType();
         // Urls
-        $record['url'][] = $this->lidoRecord->getRecordInfoLink();
+        $record['url'] = $this->lidoRecord->getRecordInfoLink();
         $record['fullrecord'] = $this->lidoRecord->toXML();
         return $this->elaborateRecord($record);
     }
@@ -148,7 +148,7 @@ class LidoSchemaFinc implements LidoSchemaInterface
         $record['id'] =
             sprintf(
                 '%s-%d-%s',
-                $this->lidoRecord->getRecordType(),
+                'finc', // $this->lidoRecord->getRecordType(),
                 $this->config['static']['source_id'],
                 Utils\BaseEncode::base64Encode($record_id)
             );
