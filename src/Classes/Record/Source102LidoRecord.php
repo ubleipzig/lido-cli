@@ -21,7 +21,7 @@
  */
 namespace LidoCli\Classes\Record;
 
-class DaphneLidoRecord extends LidoRecord
+class Source102LidoRecord extends LidoRecord
 {
     /**
      * Get the default language used when building the Solr array
@@ -35,19 +35,19 @@ class DaphneLidoRecord extends LidoRecord
     }
 
     /**
-     * Get institutions
+     * Get branches "Handbibliotheken" / "Standorte"
      *
      * @return array
      * @access public
      */
-    public function getInstitution()
+    public function getBranches()
     {
-        $listInstitutions = $this->getRepositoryNameID();
-        foreach ($listInstitutions as &$institution) {
-            if (0 < preg_match('/^info:isil\/(.*)$/', $institution, $match)) {
-                $institution = $match[1];
+        $listBranches = $this->getRepositoryNameID();
+        foreach ($listBranches as &$branch) {
+            if (0 < preg_match('/^info:isil\/(.*)$/', $branch, $match)) {
+                $branch = $match[1];
             }
         }
-        return $listInstitutions;
+        return $listBranches;
     }
 }
