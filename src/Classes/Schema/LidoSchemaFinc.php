@@ -99,8 +99,6 @@ class LidoSchemaFinc implements LidoSchemaInterface
         $record['geographic']
             = $record['geographic_facet']
             = $this->lidoRecord->getRepositoryNamePlaceSet();
-        // Institution
-        $record['institution'] = $this->lidoRecord->getInstitution();
         // Recordtype
         $record['recordtype'] = $this->lidoRecord->getRecordType();
         // Urls

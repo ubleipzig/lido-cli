@@ -111,6 +111,33 @@ trait LidoSchemaTrait
         return $record;
     }
 
+
+    /**
+     * Run task - getter function to add fields
+     *
+     * @param array $record Self-referential record array
+     * @param array $config Config container for function
+     *
+     * @return array $record
+     * @access protected
+     */
+    protected function runTaskFunction(&$record, $config)
+    {
+        print_r($config);
+        if (is_array($config) && count($config) > 0) {
+            foreach ($config as $field => $function) {
+                if (isset($record[$field])) {
+                    print_r('Notice: Record field ' . $field
+                        . ' already existed.'
+                        . ' Existing record field will be overwritten.' . "\n");
+                }
+                $record[$field] = $this->lidoRecord->$function();
+            }
+        }
+        return $record;
+    }
+
+
     /**
      * Run task - move values in other field
      *
@@ -186,6 +213,5 @@ trait LidoSchemaTrait
         }
         return $record;
     }
-
 
 }
