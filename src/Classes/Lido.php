@@ -114,15 +114,16 @@ class Lido
     {
 
         try {
-            $exportPath = '';
-
-            if ($export != null &&
-                (false ===
-                    ($exportPath = $this->checkIfExportDirectoryExists($export)))
-            ) {
-                throw new \Exception("Parameter -e|--export contains no valid" .
-                    "export directory.");
+            if ($export != null) {
+                if (false === $this->checkIfExportFileExists($export)) {
+                    print_r("File to export at " . $export . " will be created.\n");
+                } else {
+                    throw new \Exception('File to export at ' . $export . ' will be ' .
+                        'overwritten. Due to security reasons remove previous ' .
+                        'file via console or similar.');
+                }
             }
+
             if (false === $this->checkIfLidoFileExists($path)) {
                 throw new \Exception('File to import does not exist');
             }
@@ -141,7 +142,6 @@ class Lido
             // Define local vars
             $outputCollector = '';
             $tempIterator = 1;
-            $fileIterator = 1;
 
             // Start streaming via node
             while ($node = $streamer->getNode()) {
@@ -149,28 +149,25 @@ class Lido
                 $this->setLidoWrapTags($node);
 
                 // Process XSLT transformations
-                //print_r("Start XSLT processing.");
                 $data = $this->transformLidoWithXslt($node);
-                //print_r("Finish XSLT processing in ".$this->getBenchmark()."s");
 
                 // Process Lido XML
-                //print_r("Start processing LIDO xml.");
                 $record = LidoFactory::getLidoInstance($data, $filter, $schema);
-                //print_r("End processing LIDO xml.");
 
+                // Put data to screen or file
                 if ($export == null) {
                     $outputCollector = $record->toSolrArray();
                 } else {
                     $outputCollector .= $record->toSolrJson();
                 }
-
-                if ($exportPath != null) {
+                // Routine to save results partly in file.
+                if ($export != null) {
                     if ($tempIterator == $units) {
                         file_put_contents(
-                            $exportPath . basename($path) . '-' . $fileIterator . '.ndj',
-                            $outputCollector
+                            $export,
+                            $outputCollector,
+                            FILE_APPEND
                         );
-                        $fileIterator++;
                         $tempIterator = 0;
                         $outputCollector = '';
                     }
@@ -181,10 +178,11 @@ class Lido
             } // End while
 
             // Export rest of files
-            if ($exportPath != null) {
+            if ($export != null) {
                 file_put_contents(
-                    $exportPath . basename($path) . '-' . $fileIterator . '.ndj',
-                    $outputCollector
+                    $export,
+                    $outputCollector,
+                    FILE_APPEND
                 );
             }
 
@@ -197,18 +195,22 @@ class Lido
     }
 
     /**
-     * Check if export directory is valid
+     * Check if export file exists
      *
-     * @param $export
+     * @param string $export
      *
-     * @return mixed    Return absolute path if it exists otherwise false.
+     * @return mixed        Return absolute path if it exists otherwise false.
      * @access private
+     * @throws \Exception   Parameter -e|export indicates to an existing directory.
      */
-    private function checkIfExportDirectoryExists($export)
+    private function checkIfExportFileExists($export)
     {
         $path = realpath($export);
-        return ($path !== false && is_dir($path))
-            ? (rtrim($path, '/') . '/') : false;
+        if (is_dir($path)) {
+            throw new \Exception('Parameter -e|export indicates to an existing '
+                . 'directory. Has to be filename.');
+        }
+        return (is_file($export)) ? true : false;
     }
 
     /**
