@@ -52,6 +52,14 @@ return [
             'field1' => 'field2',
             'field3' => 'field4',
         ],
+        /**
+        * Fill field with a LidoRecord method.
+        *
+        * If you defined a specific SourceLidoRecord do your customize methods here.
+        /
+        'function' => [
+            'field1' => 'methodName'
+        ]
     ],
     'source' => [
         'static' => [

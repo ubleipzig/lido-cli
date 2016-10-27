@@ -254,14 +254,14 @@ class Lido
     {
         $xml = simplexml_load_string($node);
 
-        $lidoXslt = "../xslt/lido-*.xsl";
-        $filterXslt = "../xslt/" . $filter . "-*.xsl";
-
+        // Get absolute path for xslt sheets
+        $path = (realpath(dirname(__FILE__))) . '/../../xslt/';
+        $lidoXslt = $path . "lido-*.xsl";
+        $filterXslt = $path . $filter . "-*.xsl";
         $xsltStyleSheetsToProcess = array_merge(
             glob($lidoXslt),
             glob($filterXslt)
         );
-
         if (is_array($xsltStyleSheetsToProcess) &&
             count($xsltStyleSheetsToProcess) > 0
         ) {

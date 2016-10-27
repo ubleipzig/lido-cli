@@ -123,7 +123,6 @@ trait LidoSchemaTrait
      */
     protected function runTaskFunction(&$record, $config)
     {
-        print_r($config);
         if (is_array($config) && count($config) > 0) {
             foreach ($config as $field => $function) {
                 if (isset($record[$field])) {
