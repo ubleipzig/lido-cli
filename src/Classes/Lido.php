@@ -297,7 +297,7 @@ class Lido
         $match = [];
         $snippet = file_get_contents($source, null, null, 0, $snippetLength);
         // Catch open lido wrap tag with prefix and namespaces
-        if (preg_match('/(<(.*):+lidoWrap.*>)/', $snippet, $match) != 1) {
+        if (preg_match('/(<(.*):+lidoWrap.*>)/U', $snippet, $match) != 1) {
             return false;
         }
         $this->lidoWrapTagOpen = (isset($match[1]) && strlen($match[1]) > 0)
