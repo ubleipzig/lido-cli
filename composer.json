@@ -21,7 +21,7 @@
     "php": ">=5.5.9",
     "ext-mbstring": "*",
     "prewk/xml-string-streamer":"master-dev",
-    "ulrichsg/getopt-php":"master-dev",
+    "ulrichsg/getopt-php":"^2.3",
     "vlucas/phpdotenv":"2.*"
   },
   "autoload": {
