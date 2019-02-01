@@ -95,16 +95,29 @@ trait LidoSchemaTrait
         if (is_array($config) && count($config) > 0) {
             foreach ($config as $field => $cp_field) {
                 if (!isset($record[$field])) {
-                    print_r('Notice: Record field: ' . $field . 'does not exist.'
+                    print_r('Warn: Record field: ' . $field . 'does not exist.'
                         . ' Copying record fields task cannot proceeded.' . "\n");
 
                 } else {
-                    if (isset($record[$cp_field])) {
-                        print_r('Notice: Record field ' . $cp_field
-                            . ' already existed.'
-                            . ' Existing record field will be overwritten.' . "\n");
+                    if (is_array($cp_field) && count($cp_field) > 0) {
+                        foreach ($cp_field as $sgl_cp_field) {
+                            if (isset($record[$sgl_cp_field])) {
+                                print_r(
+                                    'Info: Existing record field ' . $sgl_cp_field
+                                    . ' will be overwritten by copied field.' . "\n"
+                                );
+                            }
+                            $record[$sgl_cp_field] = $record[$field];
+                        }
+                    } else {
+                        if (isset($record[$cp_field])) {
+                            print_r(
+                                'Info: Existing record field ' . $cp_field
+                                . ' will be overwritten by copied field.' . "\n"
+                            );
+                        }
+                        $record[$cp_field] = $record[$field];
                     }
-                    $record[$cp_field] = $record[$field];
                 }
             }
         }

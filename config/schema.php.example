@@ -42,7 +42,8 @@ return [
          */
         'copy' => [
             'field1' => 'field2',
-            'field3' => 'field4'
+            'field3' => 'field4',
+            'field5' => ['field6', 'field7']
         ],
         /**
          * Move/rename fields of the record
