@@ -11,7 +11,7 @@ github_mirror:
     GIT_CHECKOUT: "false"
   script: |
     cd /tmp
-    git clone --mirror ${CI_REPOSITORY_URL} project
+    git clone --single-branch --branch master ${CI_REPOSITORY_URL} project
     cd project
     git remote add github https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/ubleipzig/lido-cli.git
     git push --mirror github
