@@ -17,5 +17,5 @@ github_mirror:
     git push --mirror github
   tags:
     - docker
-  except:
-    - branches
+  only:
+    - master
